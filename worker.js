@@ -55,22 +55,23 @@ class WhatsAppBusinessWorker {
             timestamp: new Date().toISOString()
         });
 
-        const response = await this.generateAutoResponse(from, body);
+        const baseResponse = await this.generateAutoResponse(from, body);
         
-        if (response) {
-            await this.sendWhatsAppMessage(from, response);
+        if (baseResponse) {
+            const enhancedResponse = await this.enhanceResponseWithAI(body, baseResponse);
+            await this.sendWhatsAppMessage(from, enhancedResponse);
             
             await this.saveMessage({
                 message_id: `bot_${Date.now()}`,
                 from_phone: 'bot',
                 to_phone: from,
-                content: response,
+                content: enhancedResponse,
                 direction: 'outgoing',
                 timestamp: new Date().toISOString()
             });
         }
 
-        return { success: true, response };
+        return { success: true, response: enhancedResponse };
     }
 
     async generateAutoResponse(phone, message) {
@@ -306,8 +307,73 @@ _Powered by Cloudflare Workers_ ⚡`;
     }
 
     async sendWhatsAppMessage(to, message) {
-        console.log(`Enviando para ${to}: ${message}`);
-        return true;
+        try {
+            const response = await fetch(`https://graph.facebook.com/v18.0/${this.env.META_APP_ID}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.env.META_ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messaging_product: 'whatsapp',
+                    to: to,
+                    type: 'text',
+                    text: {
+                        body: message
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Erro ao enviar mensagem WhatsApp:', await response.text());
+                return false;
+            }
+
+            const result = await response.json();
+            console.log('Mensagem enviada com sucesso:', result);
+            return true;
+        } catch (error) {
+            console.error('Erro na integração WhatsApp:', error);
+            return false;
+        }
+    }
+
+    async enhanceResponseWithAI(userMessage, baseResponse) {
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.env.OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: 'Você é um assistente do Royal Club. Melhore as respostas para serem mais naturais e úteis, mantendo o contexto do negócio de eventos e entretenimento. Responda sempre em português brasileiro.'
+                        },
+                        {
+                            role: 'user',
+                            content: `Mensagem do cliente: "${userMessage}"\nResposta base: "${baseResponse}"\n\nMelhore esta resposta mantendo as informações importantes mas tornando-a mais natural e personalizada.`
+                        }
+                    ],
+                    max_tokens: 300,
+                    temperature: 0.7
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Erro na API OpenAI:', await response.text());
+                return baseResponse;
+            }
+
+            const result = await response.json();
+            return result.choices[0]?.message?.content || baseResponse;
+        } catch (error) {
+            console.error('Erro ao processar IA:', error);
+            return baseResponse;
+        }
     }
 }
 

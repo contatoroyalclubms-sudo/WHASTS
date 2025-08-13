@@ -29,6 +29,24 @@ sed -i "s/sua_database_id/$DB_ID/g" wrangler.toml
 echo "🌐 Fazendo deploy do Worker..."
 wrangler deploy
 
+echo "🔐 Configurando secrets das APIs..."
+echo "Digite as credenciais quando solicitado:"
+
+echo "OpenAI API Key:"
+wrangler secret put OPENAI_API_KEY
+
+echo "Meta App ID:"
+wrangler secret put META_APP_ID
+
+echo "Meta App Secret:"
+wrangler secret put META_APP_SECRET
+
+echo "Meta Marketing API Token:"
+wrangler secret put META_MARKETING_API
+
+echo "Meta Access Token:"
+wrangler secret put META_ACCESS_TOKEN
+
 read -p "🌍 Deseja configurar domínio customizado? (y/n): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then

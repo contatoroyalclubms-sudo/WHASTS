@@ -18,3 +18,10 @@ database_id = "sua_database_id"
 ENVIRONMENT = "production"
 COMPANY_NAME = "Royal Club"
 WEBHOOK_SECRET = "seu_webhook_secret_aqui"
+
+# API Keys devem ser configuradas como secrets do Cloudflare Workers
+# Use: wrangler secret put OPENAI_API_KEY
+# Use: wrangler secret put META_APP_ID  
+# Use: wrangler secret put META_APP_SECRET
+# Use: wrangler secret put META_MARKETING_API
+# Use: wrangler secret put META_ACCESS_TOKEN

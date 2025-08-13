@@ -46,8 +46,13 @@ O script irá:
 - ✅ Criar KV Namespace
 - ✅ Criar banco D1
 - ✅ Executar schema SQL
+- ✅ Configurar secrets das APIs (OpenAI e Meta)
 - ✅ Fazer deploy do Worker
 - ✅ Configurar domínio (opcional)
+
+**Importante**: Durante o deploy, você será solicitado a inserir as credenciais das APIs:
+- OpenAI API Key
+- Meta App ID, Secret e Access Tokens
 
 ### 3. Configurar WhatsApp
 Configure seu webhook do WhatsApp para:
@@ -210,6 +215,16 @@ Acesse o dashboard em: `https://seu-worker.workers.dev/`
 ENVIRONMENT = "production"
 COMPANY_NAME = "Royal Club"
 WEBHOOK_SECRET = "seu_webhook_secret"
+```
+
+### Secrets das APIs
+Configure usando Wrangler CLI:
+```bash
+wrangler secret put OPENAI_API_KEY
+wrangler secret put META_APP_ID
+wrangler secret put META_APP_SECRET
+wrangler secret put META_MARKETING_API
+wrangler secret put META_ACCESS_TOKEN
 ```
 
 ### Domínio Customizado
