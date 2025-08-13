@@ -7,21 +7,22 @@ name = "whatsapp-business-bot"
 
 [[env.production.kv_namespaces]]
 binding = "WHATSAPP_KV"
-id = "sua_kv_namespace_id"
+id = "a28c17efaf6f4591b486838d23aad680"
 
 [[env.production.d1_databases]]
 binding = "WHATSAPP_DB"
 database_name = "whatsapp-business"
-database_id = "sua_database_id"
+database_id = "2ba430bf-fdbf-43ce-9dc2-57d5e7e0cbfc"
 
 [env.production.vars]
 ENVIRONMENT = "production"
 COMPANY_NAME = "Royal Club"
-WEBHOOK_SECRET = "seu_webhook_secret_aqui"
+COMPANY_PHONE = "+5567999999999"
 
-# API Keys devem ser configuradas como secrets do Cloudflare Workers
+# API Keys e secrets devem ser configuradas como secrets do Cloudflare Workers
 # Use: wrangler secret put OPENAI_API_KEY
 # Use: wrangler secret put META_APP_ID  
 # Use: wrangler secret put META_APP_SECRET
 # Use: wrangler secret put META_MARKETING_API
 # Use: wrangler secret put META_ACCESS_TOKEN
+# Use: wrangler secret put WEBHOOK_SECRET
