@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-business-cloudflare",
+  "version": "2.0.0",
+  "description": "WhatsApp Business Bot powered by Cloudflare Workers",
+  "main": "worker.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "setup": "chmod +x deploy.sh && ./deploy.sh",
+    "db:migrate": "wrangler d1 execute whatsapp-business --file=./schema.sql",
+    "db:seed": "wrangler d1 execute whatsapp-business --file=./seed.sql",
+    "logs": "wrangler tail",
+    "domains": "wrangler route list"
+  },
+  "keywords": ["whatsapp", "bot", "cloudflare", "workers", "automation"],
+  "author": "Royal Club",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

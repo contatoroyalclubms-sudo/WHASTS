@@ -1,0 +1,20 @@
+name = "whatsapp-business-bot"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "whatsapp-business-bot"
+
+[[env.production.kv_namespaces]]
+binding = "WHATSAPP_KV"
+id = "sua_kv_namespace_id"
+
+[[env.production.d1_databases]]
+binding = "WHATSAPP_DB"
+database_name = "whatsapp-business"
+database_id = "sua_database_id"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+COMPANY_NAME = "Royal Club"
+WEBHOOK_SECRET = "seu_webhook_secret_aqui"

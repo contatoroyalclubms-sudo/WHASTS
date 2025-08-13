@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Club - WhatsApp Business Automation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        [x-cloak] { display: none !important; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen" x-data="dashboardApp()">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-crown text-yellow-400 text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Royal Club Bot</h1>
+                        <p class="text-sm opacity-80">WhatsApp Business Automation</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <button @click="activeTab = 'dashboard'" 
+                            :class="activeTab === 'dashboard' ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'"
+                            class="px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                    </button>
+                    <button @click="activeTab = 'products'" 
+                            :class="activeTab === 'products' ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'"
+                            class="px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-box mr-2"></i>Produtos
+                    </button>
+                    <button @click="activeTab = 'customers'" 
+                            :class="activeTab === 'customers' ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'"
+                            class="px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-users mr-2"></i>Clientes
+                    </button>
+                    <button @click="activeTab = 'messages'" 
+                            :class="activeTab === 'messages' ? 'bg-white bg-opacity-20' : 'hover:bg-white hover:bg-opacity-10'"
+                            class="px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-comments mr-2"></i>Mensagens
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Dashboard Tab -->
+        <div x-show="activeTab === 'dashboard'" x-cloak>
+            <h2 class="text-3xl font-bold mb-8">Dashboard de Controle</h2>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gray-800 rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Mensagens Enviadas</p>
+                            <p class="text-3xl font-bold text-blue-400" x-text="stats.messagesSent">0</p>
+                        </div>
+                        <i class="fas fa-paper-plane text-blue-400 text-2xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Clientes Ativos</p>
+                            <p class="text-3xl font-bold text-green-400" x-text="stats.activeCustomers">0</p>
+                        </div>
+                        <i class="fas fa-users text-green-400 text-2xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Pedidos Hoje</p>
+                            <p class="text-3xl font-bold text-yellow-400" x-text="stats.ordersToday">0</p>
+                        </div>
+                        <i class="fas fa-shopping-cart text-yellow-400 text-2xl"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-800 rounded-xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400 text-sm">Tempo Online</p>
+                            <p class="text-3xl font-bold text-purple-400" x-text="uptime">00:00:00</p>
+                        </div>
+                        <i class="fas fa-clock text-purple-400 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Panels -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- WhatsApp Status -->
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold">Status do WhatsApp</h3>
+                        <div class="flex items-center space-x-2">
+                            <div :class="connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'" 
+                                 class="w-3 h-3 rounded-full animate-pulse"></div>
+                            <span x-text="connectionStatus === 'connected' ? 'Conectado' : 'Conectando...'" 
+                                  class="text-sm"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-gray-700 rounded-lg p-4 text-center">
+                            <i class="fas fa-qrcode text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-400">QR Code aparecerá aqui quando necessário</p>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button @click="reconnectWhatsApp()" 
+                                    class="flex-1 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-refresh mr-2"></i>Reconectar
+                            </button>
+                            <button @click="logoutWhatsApp()" 
+                                    class="flex-1 bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Status -->
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold">Status da API</h3>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span class="text-sm">Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Servidor:</span>
+                            <span>Cloudflare Workers</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Versão:</span>
+                            <span>v2.0.0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Região:</span>
+                            <span>Global</span>
+                        </div>
+                        
+                        <button @click="healthCheck()" 
+                                class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors mt-4">
+                            <i class="fas fa-heart mr-2"></i>Health Check
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Messages -->
+            <div class="bg-gray-800 rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold">Mensagens Recentes</h3>
+                    <button @click="clearMessages()" 
+                            class="text-red-400 hover:text-red-300 transition-colors">
+                        <i class="fas fa-trash mr-1"></i>Limpar
+                    </button>
+                </div>
+                
+                <div class="space-y-3 max-h-64 overflow-y-auto">
+                    <template x-for="message in recentMessages" :key="message.id">
+                        <div class="flex items-start space-x-3 p-3 bg-gray-700 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium" x-text="message.from"></span>
+                                    <span class="text-xs text-gray-400" x-text="message.time"></span>
+                                </div>
+                                <p class="text-gray-300 text-sm" x-text="message.content"></p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Tab -->
+        <div x-show="activeTab === 'products'" x-cloak>
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold">Gestão de Produtos</h2>
+                <button @click="showAddProduct = true" 
+                        class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Adicionar Produto
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="product in products" :key="product.id">
+                    <div class="bg-gray-800 rounded-xl p-6 card-hover">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold" x-text="product.name"></h3>
+                            <span class="text-2xl font-bold text-green-400" x-text="'R$ ' + product.price.toFixed(2)"></span>
+                        </div>
+                        <p class="text-gray-400 mb-4" x-text="product.description"></p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Estoque: <span x-text="product.stock"></span></span>
+                            <div class="flex space-x-2">
+                                <button class="text-blue-400 hover:text-blue-300">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="text-red-400 hover:text-red-300">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div x-show="activeTab === 'customers'" x-cloak>
+            <h2 class="text-3xl font-bold mb-8">Gestão de Clientes</h2>
+            
+            <div class="bg-gray-800 rounded-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th class="px-6 py-4 text-left">Nome</th>
+                                <th class="px-6 py-4 text-left">Telefone</th>
+                                <th class="px-6 py-4 text-left">Última Mensagem</th>
+                                <th class="px-6 py-4 text-left">Status</th>
+                                <th class="px-6 py-4 text-left">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            <template x-for="customer in customers" :key="customer.id">
+                                <tr class="hover:bg-gray-700 transition-colors">
+                                    <td class="px-6 py-4" x-text="customer.name || 'N/A'"></td>
+                                    <td class="px-6 py-4" x-text="customer.phone"></td>
+                                    <td class="px-6 py-4 text-gray-400" x-text="customer.lastMessage"></td>
+                                    <td class="px-6 py-4">
+                                        <span :class="customer.status === 'active' ? 'bg-green-600' : 'bg-gray-600'" 
+                                              class="px-2 py-1 rounded-full text-xs" x-text="customer.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <button class="text-blue-400 hover:text-blue-300 mr-3">
+                                            <i class="fas fa-comment"></i>
+                                        </button>
+                                        <button class="text-green-400 hover:text-green-300">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Tab -->
+        <div x-show="activeTab === 'messages'" x-cloak>
+            <h2 class="text-3xl font-bold mb-8">Teste de Mensagens</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Send Message Form -->
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h3 class="text-xl font-semibold mb-4">Enviar Mensagem</h3>
+                    
+                    <form @submit.prevent="sendTestMessage()">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Número do WhatsApp</label>
+                                <input x-model="testMessage.phone" 
+                                       type="text" 
+                                       placeholder="+5567999999999"
+                                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Mensagem</label>
+                                <textarea x-model="testMessage.content" 
+                                          rows="4" 
+                                          placeholder="Digite sua mensagem..."
+                                          class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"></textarea>
+                            </div>
+                            
+                            <button type="submit" 
+                                    class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-paper-plane mr-2"></i>Enviar Mensagem
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Message Templates -->
+                <div class="bg-gray-800 rounded-xl p-6">
+                    <h3 class="text-xl font-semibold mb-4">Templates Rápidos</h3>
+                    
+                    <div class="space-y-3">
+                        <button @click="useTemplate('welcome')" 
+                                class="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                            <div class="font-medium">Mensagem de Boas-vindas</div>
+                            <div class="text-sm text-gray-400">🎭 Bem-vindo ao Royal Club!</div>
+                        </button>
+                        
+                        <button @click="useTemplate('products')" 
+                                class="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                            <div class="font-medium">Lista de Produtos</div>
+                            <div class="text-sm text-gray-400">🛍️ Nossos Produtos/Serviços</div>
+                        </button>
+                        
+                        <button @click="useTemplate('support')" 
+                                class="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                            <div class="font-medium">Atendimento Humano</div>
+                            <div class="text-sm text-gray-400">👤 Falar com Atendente</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function dashboardApp() {
+            return {
+                activeTab: 'dashboard',
+                connectionStatus: 'connected',
+                uptime: '00:00:00',
+                showAddProduct: false,
+                
+                stats: {
+                    messagesSent: 0,
+                    activeCustomers: 0,
+                    ordersToday: 0
+                },
+                
+                products: [
+                    { id: 1, name: 'Ingresso VIP', description: 'Acesso completo ao evento com área VIP', price: 60.00, stock: 100 },
+                    { id: 2, name: 'Ingresso Standard', description: 'Acesso básico ao evento', price: 30.00, stock: 200 },
+                    { id: 3, name: 'Combo Família', description: '4 ingressos standard + 2 bebidas', price: 100.00, stock: 50 }
+                ],
+                
+                customers: [
+                    { id: 1, name: 'João Silva', phone: '+5567999999999', lastMessage: 'Há 5 minutos', status: 'active' },
+                    { id: 2, name: null, phone: '+5567888888888', lastMessage: 'Há 1 hora', status: 'inactive' }
+                ],
+                
+                recentMessages: [
+                    { id: 1, from: 'Sistema', content: 'Bot iniciado com sucesso!', time: 'Agora' },
+                    { id: 2, from: '+5567999999999', content: 'Olá, gostaria de ver os produtos', time: '2 min atrás' }
+                ],
+                
+                testMessage: {
+                    phone: '',
+                    content: ''
+                },
+                
+                init() {
+                    this.startUptime();
+                    this.loadStats();
+                },
+                
+                startUptime() {
+                    let seconds = 0;
+                    setInterval(() => {
+                        seconds++;
+                        const hours = Math.floor(seconds / 3600);
+                        const minutes = Math.floor((seconds % 3600) / 60);
+                        const secs = seconds % 60;
+                        this.uptime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }, 1000);
+                },
+                
+                async loadStats() {
+                    try {
+                        const response = await fetch('/api/stats');
+                        const data = await response.json();
+                        if (data.success) {
+                            this.stats = data.data;
+                        }
+                    } catch (error) {
+                        console.error('Erro ao carregar estatísticas:', error);
+                    }
+                },
+                
+                async reconnectWhatsApp() {
+                    this.connectionStatus = 'connecting';
+                    setTimeout(() => {
+                        this.connectionStatus = 'connected';
+                    }, 2000);
+                },
+                
+                async logoutWhatsApp() {
+                    this.connectionStatus = 'disconnected';
+                },
+                
+                async healthCheck() {
+                    try {
+                        const response = await fetch('/health');
+                        const data = await response.json();
+                        alert(`Health Check: ${data.status} - ${data.timestamp}`);
+                    } catch (error) {
+                        alert('Erro no Health Check');
+                    }
+                },
+                
+                clearMessages() {
+                    this.recentMessages = [];
+                },
+                
+                async sendTestMessage() {
+                    if (!this.testMessage.phone || !this.testMessage.content) {
+                        alert('Preencha todos os campos');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/send', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                to: this.testMessage.phone,
+                                message: this.testMessage.content
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success) {
+                            alert('Mensagem enviada com sucesso!');
+                            this.testMessage = { phone: '', content: '' };
+                        } else {
+                            alert('Erro ao enviar mensagem');
+                        }
+                    } catch (error) {
+                        alert('Erro ao enviar mensagem');
+                    }
+                },
+                
+                useTemplate(type) {
+                    const templates = {
+                        welcome: '🎭 Bem-vindo ao Royal Club!\n\nEscolha uma opção:\n\n*1* 🛍️ Ver Produtos/Serviços\n*2* 👤 Falar com Atendente\n*3* ℹ️ Sobre a Empresa\n*4* 📋 Status do Pedido',
+                        products: '🛍️ *Nossos Produtos/Serviços:*\n\n*1.* Ingresso VIP\n💰 R$ 60.00\n📝 Acesso completo ao evento com área VIP\n\n*2.* Ingresso Standard\n💰 R$ 30.00\n📝 Acesso básico ao evento',
+                        support: '👤 *Atendimento Humano*\n\nVocê foi direcionado para nossa equipe.\nUm atendente entrará em contato em breve.\n\n⏰ Horário: Segunda a Sexta, 8h às 18h'
+                    };
+                    
+                    this.testMessage.content = templates[type] || '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
